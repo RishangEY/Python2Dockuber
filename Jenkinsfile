@@ -17,7 +17,7 @@ pipeline {
   }
 
   stages {
-    stage('拉取代码') {
+    stage('Pull') {
       steps {
         container('base') {
           checkout([$class: 'GitSCM', branches: [[name: '*/$BRANCH_NAME']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/shaowenchen/devops-python-sample.git']]])
@@ -26,7 +26,7 @@ pipeline {
       }
     }
 
-    stage('代码检查') {
+    stage('code inspection') {
       steps {
         container('base') {
           withCredentials([string(credentialsId : "$SONAR_CREDENTIAL_ID" ,variable : 'SONAR_TOKEN' ,)]) {
@@ -47,7 +47,7 @@ pipeline {
       }
     }
 
-    stage('推送镜像') {
+    stage('push image') {
       steps {
         container('base') {
           withCredentials([usernamePassword(credentialsId : "$DOCKER_CREDENTIAL_ID" ,passwordVariable : 'DOCKER_PASSWORD' ,usernameVariable : 'DOCKER_USERNAME' ,)]) {
@@ -61,7 +61,7 @@ pipeline {
       }
     }
 
-    stage('部署') {
+    stage('Kubernetes Deploy') {
       steps {
         kubernetesDeploy(enableConfigSubstitution: true, kubeconfigId: "$KUBECONFIG_CREDENTIAL_ID", configs: 'deploy/**')
       }
